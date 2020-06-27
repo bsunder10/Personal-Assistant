@@ -1,0 +1,11 @@
+#Filename as cricketnews
+
+from selenium import webdriver
+from time import sleep
+
+
+def latest():
+    driver = webdriver.Chrome('/usr/lib/chromium-browser/chromedriver') 
+    driver.get('https://www.cricbuzz.com/')
+    data = driver.find_element_by_xpath('//*[@id="cb-news-blck"]/div')
+    return data.text
