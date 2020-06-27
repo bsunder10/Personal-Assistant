@@ -1,0 +1,17 @@
+#File name as clickpic
+
+from picamera import PiCamera
+from time import sleep
+
+import test
+
+def capture():
+    camera = PiCamera()
+    camera.start_preview()
+    sleep(2)
+    camera.capture('/home/pi/Desktop/impg.jpg')
+    sleep(5)
+    camera.stop_preview()
+    test.capsend()
+    camera.close()
+    return 'clicked the pic'
