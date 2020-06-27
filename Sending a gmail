@@ -1,0 +1,75 @@
+#Filename as sendmail
+
+import smtplib
+import pyttsx3
+import speech_recognition as sr
+import os
+
+server = smtplib.SMTP('smtp.gmail.com', 587)
+server.starttls()
+server.login('***********','************')   	#mail id and password
+
+c = {'surender':'**************@gmail.com',
+     'sai tharun':'***************.144@gmail.com',
+     'saitharun':'***************.144@gmail.com'}
+
+#Text to Speech
+engine = pyttsx3.init()
+rate = engine.getProperty('rate')
+engine.setProperty('rate', rate-50)
+
+#Speech to text
+r = sr.Recognizer()
+def  listen():
+    while True:
+        try:
+            print('Speak Now...')
+            os.system("arecord -vvv -d 4 --device hw:1,0 --format s16_le --rate 48000 trigger.wav")
+
+
+            with sr.AudioFile("trigger.wav") as source:
+                audio = r.listen(source)
+    
+
+            text1 = (r.recognize_google(audio)).lower()
+            print("Raspberry Speech Recognition thinks you said : " + text1)
+            engine.say(text1)
+            engine.runAndWait()
+            return text1
+            break
+        
+        except:
+            print('Some error occured.')
+            continue
+        
+#function to speak
+def speak(text):
+    engine.say(text)
+    engine.runAndWait()
+    
+
+def send(f):
+    speak('What is the messege')
+    messege = input(str('What is the messege:'))        #messege = listen()
+    
+    if f in c:
+        idd = c.get(f)
+        print(idd)
+        server.sendmail('sunbder@gmail.com', idd, messege)
+        server.quit()
+        return 'sent mail'
+
+    else:
+        return 'did not find id for' + f
+    
+    
+def many(d,messege):
+    for i in range(len(d)):
+        if d[i] in c:
+            idd = c.get(d[i])
+            print(idd)
+            server.sendmail('sunbder@gmail.com', idd, messege)
+            speak('send mail to ' + d[i])
+        else:
+            speak('did not find id for' + d[i])
+    return 'sent to all'
