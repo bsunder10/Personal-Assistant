@@ -1,0 +1,94 @@
+#Run the file saperately in new shell and run it parallelly with the main code
+#It stores the data in a file and that file is called in the main program
+
+from selenium import webdriver 
+from time import sleep 
+import pyttsx3
+import os
+
+#Setting up output speech
+engine = pyttsx3.init()
+rate = engine.getProperty('rate')
+engine.setProperty('rate', rate-50)
+
+#Function for speaking up
+def speak(txt):
+    engine.say(txt)
+    engine.runAndWait()
+
+#facebook username and pass
+usr='**************'
+pwd='**************'
+
+def notificate():
+    f = open('fin.txt','w')
+    driver = webdriver.Chrome('/usr/lib/chromium-browser/chromedriver') 
+
+    driver.get('https://www.facebook.com/') 
+    print ("Opened facebook") 
+    sleep(1) 
+      
+    username_box = driver.find_element_by_id('email') 
+    username_box.send_keys(usr)
+    print ("Email Id entered") 
+    sleep(1) 
+      
+    password_box = driver.find_element_by_id('pass') 
+    password_box.send_keys(pwd) 
+    print ("Password entered") 
+      
+    login_box = driver.find_element_by_id('loginbutton') 
+    login_box.click() 
+    print ("Done")
+    sleep(2)
+    driver.get('https://www.facebook.com/notifications')
+    sleep(1)
+
+    print('the notifications are')
+    data3 = driver.find_element_by_xpath('//*[@id="content"]/div/div[2]')
+    speak('The notifications are')
+    print(data3.text)
+    f.write(data3.text)
+    #speak(data3.text)
+    f.close()
+
+    f = open('fin.txt','r')
+    g = open('finn.txt','w')
+    c = f.readlines()
+
+    for i in range(len(c)):
+        d = lambda c,i:c if i%2 == 0 else ''
+        print(d(c[i],i))
+        g.write(d(c[i],i))
+
+    f.close()
+    g.close()
+
+    f = open('fin.txt','w')
+    print('upcomming birthdays')
+    speak('upcomming birthdays')
+    driver.get('https://www.facebook.com/events/birthdays/')
+    sleep(1)
+    data4 = driver.find_element_by_xpath('//*[@id="birthdays_content"]/div')
+    print(data4.text)
+    f.write(data4.text)
+    #speak(data4.text)
+    f.close()
+    
+    f = open('fin.txt','r')
+    g = open('finn.txt','a')
+    c = f.readlines()
+
+    for i in range(len(c)):
+        g.write('\n')
+        d = lambda c:'' if c == 'View Friendship' else c+'.'
+        print(d(c[i]))
+        g.write(d(c[i]))
+
+    f.close()
+    g.close()
+
+    driver.quit()
+while True:
+    notificate()
+    time.sleep(1500)
