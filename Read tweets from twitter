@@ -1,0 +1,59 @@
+#Filename as twitter
+
+import tweepy
+import pyttsx3
+
+consumer_key = "************************"
+consumer_secret = "*********************"
+access_key = "**************************"
+access_secret = "***********************"
+
+twi = {'suresh raina':'ImRaina','narendra modi':'narendramodi',
+       'shah rukh kahn':'iamsrk', 'csk':'ChennaiIPL', 'srh':'SunRisers',
+       'modi':'narendramodi', 'ktr':'KTRTRS'}
+
+#Setting up output speech
+engine = pyttsx3.init()
+rate = engine.getProperty('rate')
+engine.setProperty('rate', rate-50)
+
+#Function for speaking up
+def speak(txt):
+    engine.say(txt)
+    engine.runAndWait()
+
+def read(user, number_of_tweets):
+    v = ''
+    if len(user) > 1:
+        for i in range(len(user)):
+            v += user[i]
+            v += ' '
+
+    else:
+        v = user[0]
+    print(v)
+    
+    username = twi.get(v)
+    print(username)
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret) 
+
+    auth.set_access_token(access_key, access_secret) 
+
+    api = tweepy.API(auth) 
+
+    tweets = api.user_timeline(screen_name=username) 
+
+    tmp=[] 
+
+    try:     
+        tweets_for_csv = [tweet.text for tweet in tweets] # CSV file created 
+        for j in range(0,number_of_tweets):
+                tmp.append(tweets_for_csv[j])
+                print(tweets_for_csv[j])
+                speak(tweets_for_csv[j])
+        # Printing the list 
+        #print(tmp) 
+
+    except:
+        speak('could not undestand messege')
+    
