@@ -1,0 +1,200 @@
+#Interchange the input to give input from microphone
+#Same for all the cases
+
+
+#Imorting modules    
+import speech_recognition as sr
+import RPi.GPIO as GPIO
+from time import sleep
+import datetime
+import os
+import sys
+import Adafruit_DHT
+import pyttsx3
+import time
+from nltk.corpus import stopwords
+from word2number import w2n
+
+#Importing codes
+import general
+import news
+import sendmail
+import cricketnews
+import readmail
+import twitter
+import clickpic
+
+#Setting up the pins of raspberry pi
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BCM)
+
+#Setting up output speech
+engine = pyttsx3.init()
+rate = engine.getProperty('rate')
+engine.setProperty('rate', rate-50)
+
+#Setting up input voice
+r = sr.Recognizer()
+
+#Function to listen
+def listen():
+    while True:
+        try:
+                print('Speak Now...')
+                os.system("arecord -vvv -d 4 --device hw:1,0 --format s16_le --rate 48000 trigger.wav")
+
+
+                with sr.AudioFile("trigger.wav") as source:
+                    audio = r.listen(source)
+                
+
+                text1 = (r.recognize_google(audio)).lower()
+                return ("Raspberry Speech Recognition thinks you said : " + text1)
+                break
+            
+        except:
+                continue
+
+#Function for speaking up
+def speak(txt):
+    engine.say(txt)
+    engine.runAndWait()
+
+#Temperature and Humidity
+def temp():
+    humidity, temperature = Adafruit_DHT.read_retry(11, 11)
+    te=str("{}".format(temperature))
+    print (te)
+    speak('the temperature is.. '+te+' degree....celsius')
+def hum():
+    humidity, temperature = Adafruit_DHT.read_retry(11, 11)
+    h=str("{}".format(humidity))
+    print (h)
+    speak('the humidity is.. '+h+' percentage')
+
+#Time and date
+def tim():
+    y=str(datetime.datetime.now().hour)
+    x=str(datetime.datetime.now().minute)
+    speak('the time is '+y+' '+x)
+    print(datetime.datetime.now(),x)
+def date():
+    t=str(datetime.datetime.now().date())
+    print(t)
+    speak('today''s date is '+t)
+
+#Remove stopwords
+stopWords = set(stopwords.words('english'))
+def extract(c):
+    d = []
+    for w in c:
+        if w not in stopWords:
+            d.append(w)
+    return d
+
+#Convert from word to number
+def wortonum(c):
+    return w2n.word_to_num(c)
+
+
+#**********************************************************************
+#                           Main loop
+#**********************************************************************
+while True:
+    hword = str(input("hi"))      #hword = listen()
+    print(hword)
+    if('king' in hword or 'bro' in hword or 'buddy' in hword or 'hi' in hword):
+        print('Hi')
+        speak('HI')
+        if(str(datetime.datetime.now().hour) < '12'):
+            print('good morning')
+            speak('good morning')
+            speak('have a nice day')
+        elif(str(datetime.datetime.now().hour) >= '12' and str(datetime.datetime.now().hour) < '15'):
+            print('good afternoon')
+            speak('good agternoon')
+        else:
+            print('good evening')
+            speak('good evening')
+            speak('how was your day')
+
+#############################################################################
+        while True:
+            wh = str(input()).split(' ')           #wh = listen()
+            #nme and about
+            if('time' in wh or 'tyme' in wh):
+                tim()
+                break
+            if('date' in wh):
+                date()
+                break
+            if('temperature' in wh):
+                temp()
+                hum()
+                break
+            if('cricket' in wh and 'news' in wh):
+                se = cricketnews.latest()
+                print(se)
+                speak(se)
+                break
+            if('news' in wh):
+                print(news.latest())
+                speak(news.latest())
+                break
+            if('send' in wh and 'mail' in wh and ('multiple' in wh or 'many' in wh)):
+                speak('how many people should i send')
+                j = input()        #j = listen
+                k = wortonum(j)
+                s = []
+                for i in range(1,k+1):
+                    speak(i)
+                    d = input('part:')          #d = listen()
+                    s.append(d)
+                speak('what is the messege')
+                w = input('mes')                #w = listen()
+                se = sendmail.many(s,w)
+                print(se)
+                speak(se)
+                break
+            if('send' in wh and 'mail' in wh):
+                wh.remove('send')
+                wh.remove('mail')   
+                d = extract(wh)
+                se = sendmail.send(d[0])
+                print(se)
+                speak(se)
+                break
+            if('read' in wh and 'mail' in wh):
+                wh.remove('read')
+                wh.remove('mail')
+                d = extract(wh)
+                speak('how many messeges should i read')
+                k = input()                 #k = listen()
+                g = wortonum(k)
+                se = readmail.read(g)
+                print(se)
+                speak(se)
+                break
+            if(('fb' in wh or 'facebook' in wh) and 'notifications' in wh):
+                f = open('finn.txt','r')
+                c =f.read()
+                print(c)
+                speak(c)
+                break
+            if('tweets' in wh):
+                wh.remove('tweets')
+                d = extract(wh)
+                print(d)
+                twitter.read(d,3)
+                break
+            if(('click' or 'capture') and ('pic' or 'picture') in wh):
+                d = clickpic.capture()
+                print(d)
+                speak(d)
+        
+          #**************************************************      
+            else:
+                c = general.what(wh)
+                print(c)
+                speak(c)
+                break
