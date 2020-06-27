@@ -1,0 +1,14 @@
+#Filename as general
+
+import wolframalpha
+import pyttsx3
+
+engine = pyttsx3.init()
+client = wolframalpha.Client('*****************')   		#client ID
+def what(q):
+    while True:
+        try:
+            res = client.query(q)
+            return (next(res.results).text)
+        except:
+            return ('sorry could not understand')
