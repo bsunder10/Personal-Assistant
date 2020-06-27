@@ -1,0 +1,27 @@
+#Filename as news
+
+import bs4
+from bs4 import BeautifulSoup as soup
+from urllib.request import urlopen
+
+news_url="https://news.google.com/news/rss"
+Client=urlopen(news_url)
+xml_page=Client.read()
+Client.close()
+
+d = 1
+c = ''
+
+soup_page=soup(xml_page,"xml")
+news_list=soup_page.findAll("item")
+for news in news_list:
+    if d == 10:
+      break
+    c += '  '
+    c += news.title.text
+    c += '.'
+    c += '\n'
+    d += 1
+    
+def latest():
+    return c
